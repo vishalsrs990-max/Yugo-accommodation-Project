@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "yugo-booking-lib"  # must be UNIQUE on (Test)PyPI
+version = "0.0.1"
+authors = [
+  { name = "Vishal Verma", email = "your_email@example.com" },
+]
+description = "A small booking price helper library for Yugo accommodation."
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/YOUR_GITHUB_USERNAME/yugo-booking-lib"  # later
+"Bug Tracker" = "https://github.com/YOUR_GITHUB_USERNAME/yugo-booking-lib/issues"

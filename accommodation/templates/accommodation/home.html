@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Yugo Accommodation</title>
+</head>
+<body>
+    <h1>Yugo Accommodation & Lodging</h1>
+    <h2>Available Rooms</h2>
+    <div>
+        {% for room in rooms %}
+            <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+                <h3>{{ room.name }} ({{ room.get_room_type_display }})</h3>
+                <p>Location: {{ room.location }}</p>
+                <p>Price per night: €{{ room.price_per_night }}</p>
+                {% if room.image %}
+                    <img src="{{ room.image.url }}" alt="{{ room.name }}" width="250">
+                {% endif %}
+                <p>{{ room.description }}</p>
+                <p>Status: {% if room.available %}Available{% else %}Not available{% endif %}</p>
+                <a href="{% url 'book_room' room.id %}">Book now</a>
+            </div>
+        {% empty %}
+            <p>No rooms available at the moment.</p>
+        {% endfor %}
+    </div>
+</body>
+</html>

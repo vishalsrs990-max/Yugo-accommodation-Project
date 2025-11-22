@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book {{ room.name }}</title>
+</head>
+<body>
+    <h1>Book {{ room.name }}</h1>
+    <p>{{ room.description }}</p>
+    <p>Price per night: €{{ room.price_per_night }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <label>Email:</label><br>
+        <input type="email" name="email" required><br><br>
+
+        <label>Check-in (YYYY-MM-DD):</label><br>
+        <input type="date" name="check_in" required><br><br>
+
+        <label>Check-out (YYYY-MM-DD):</label><br>
+        <input type="date" name="check_out" required><br><br>
+
+        <button type="submit">Confirm booking</button>
+    </form>
+</body>
+</html>

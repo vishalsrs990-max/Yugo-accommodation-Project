@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Booking Successful</title>
+</head>
+<body>
+    <h1>Booking Successful 🎉</h1>
+
+    <p>Thank you for your booking!</p>
+
+    <h2>Booking Details</h2>
+    <ul>
+        <li><strong>Room:</strong> {{ booking.room.name }} ({{ booking.room.get_room_type_display }})</li>
+        <li><strong>Location:</strong> {{ booking.room.location }}</li>
+        <li><strong>User Email:</strong> {{ booking.user_email }}</li>
+        <li><strong>Check-in:</strong> {{ booking.check_in }}</li>
+        <li><strong>Check-out:</strong> {{ booking.check_out }}</li>
+        <li><strong>Total Price:</strong> €{{ booking.total_price }}</li>
+        <li><strong>Status:</strong> {{ booking.get_status_display }}</li>
+        <li><strong>Created at:</strong> {{ booking.created_at }}</li>
+    </ul>
+
+    <p><a href="/">Back to rooms list</a></p>
+</body>
+</html>
