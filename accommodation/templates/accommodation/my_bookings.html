@@ -1,0 +1,191 @@
+{% extends 'accommodation/base.html' %}
+
+{% block content %}
+<style>
+    .list-wrapper {
+        min-height: calc(100vh - 80px);
+        padding: 32px 16px 40px 16px;
+        background: radial-gradient(circle at top left, #eef2ff, #e0f2fe, #f9fafb);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .list-inner {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .list-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: #111827;
+    }
+
+    .list-subtitle {
+        font-size: 13px;
+        color: #6b7280;
+        margin-bottom: 20px;
+    }
+
+    .booking-card {
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+        padding: 16px 18px;
+        margin-bottom: 14px;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .booking-main {
+        font-size: 14px;
+        color: #111827;
+    }
+
+    .booking-main .room-name {
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .booking-main .dates {
+        font-size: 13px;
+        color: #4b5563;
+        margin-bottom: 4px;
+    }
+
+    .booking-main .status {
+        font-size: 13px;
+        margin-top: 2px;
+    }
+
+    .status-confirmed {
+        color: #059669;
+    }
+
+    .status-updated {
+        color: #2563eb;
+    }
+
+    .status-cancelled {
+        color: #dc2626;
+    }
+
+    .booking-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        align-items: flex-end;
+        font-size: 13px;
+    }
+
+    .btn-small-primary,
+    .btn-small-secondary,
+    .btn-small-danger,
+    .btn-small-ghost {
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: none;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        white-space: nowrap;
+    }
+
+    .btn-small-primary {
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        color: #ffffff;
+    }
+
+    .btn-small-secondary {
+        background: #e5e7eb;
+        color: #111827;
+    }
+
+    .btn-small-danger {
+        background: linear-gradient(135deg, #f97373, #ef4444);
+        color: #ffffff;
+    }
+
+    .btn-small-ghost {
+        background: transparent;
+        color: #6b7280;
+    }
+
+    .btn-small-primary:hover,
+    .btn-small-secondary:hover,
+    .btn-small-danger:hover,
+    .btn-small-ghost:hover {
+        filter: brightness(1.05);
+    }
+
+    .empty-text {
+        margin-top: 12px;
+        font-size: 14px;
+        color: #4b5563;
+    }
+</style>
+
+<div class="list-wrapper">
+    <div class="list-inner">
+        <div class="list-title">My bookings</div>
+        <div class="list-subtitle">
+            View, update, cancel or delete your room bookings.
+        </div>
+
+        {% if bookings %}
+            {% for booking in bookings %}
+                <div class="booking-card">
+                    <div class="booking-main">
+                        <div class="room-name">
+                            {{ booking.room.name }} · {{ booking.room.location }}
+                        </div>
+                        <div class="dates">
+                            {{ booking.check_in }} → {{ booking.check_out }}
+                            &nbsp;•&nbsp; €{{ booking.total_price }}
+                        </div>
+                        <div class="status
+                            {% if booking.status == 'confirmed' %}status-confirmed{% endif %}
+                            {% if booking.status == 'updated' %}status-updated{% endif %}
+                            {% if booking.status == 'cancelled' %}status-cancelled{% endif %}
+                        ">
+                            Status: {{ booking.status|title }}
+                        </div>
+                    </div>
+
+                    <div class="booking-actions">
+                        <a href="{% url 'booking_success' booking.id %}"
+                           class="btn-small-secondary">View details</a>
+
+                        {% if booking.status != 'cancelled' %}
+                            <a href="{% url 'edit_booking' booking.id %}"
+                               class="btn-small-primary">Update</a>
+
+                            <form method="post"
+                                  action="{% url 'cancel_booking' booking.id %}">
+                                {% csrf_token %}
+                                <button type="submit"
+                                        class="btn-small-danger">Cancel</button>
+                            </form>
+                        {% endif %}
+
+                        <!-- Delete option (only removes from My bookings, not homepage) -->
+                        <form method="post"
+                              action="{% url 'delete_booking' booking.id %}">
+                            {% csrf_token %}
+                            <button type="submit"
+                                    class="btn-small-ghost">Delete record</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-text">
+                You don’t have any bookings yet.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

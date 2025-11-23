@@ -80,6 +80,7 @@
 
         <div class="nav-right">
             {% if user.is_authenticated %}
+                <a href="{% url 'my_bookings' %}" class="nav-link">My bookings</a>
                 <div class="nav-username">
                     Hi, <span>{{ user.username }}</span>
                 </div>
