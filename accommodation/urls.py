@@ -17,7 +17,11 @@ urlpatterns = [
     # My bookings list
     path('my-bookings/', views.my_bookings, name='my_bookings'),
 
-    # Auth URLs
+    # Custom media admin (separate from Django admin)
+    path('manager/rooms/', views.manager_room_list, name='manager_room_list'),
+    path('manager/rooms/<int:room_id>/image/', views.manage_room_image, name='manage_room_image'),
+
+    # Auth URLs (your existing login/signup)
     path('signup/', views.signup, name='signup'),
     path(
         'login/',

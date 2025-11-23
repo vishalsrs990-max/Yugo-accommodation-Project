@@ -80,6 +80,9 @@
 
         <div class="nav-right">
             {% if user.is_authenticated %}
+                {% if user.is_staff %}
+                    <a href="{% url 'manager_room_list' %}" class="nav-link">Media manager</a>
+                {% endif %}
                 <a href="{% url 'my_bookings' %}" class="nav-link">My bookings</a>
                 <div class="nav-username">
                     Hi, <span>{{ user.username }}</span>

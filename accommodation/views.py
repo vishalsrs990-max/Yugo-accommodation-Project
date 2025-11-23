@@ -6,13 +6,14 @@ from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login as auth_login
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 
 from .models import Room, Booking
+from .forms import RoomImageForm
 
 
 def home(request):
-    # show ALL rooms; template uses room.available to show status
+    # Show ALL rooms; template already uses room.available to show status
     rooms = Room.objects.all().order_by("id")
     return render(request, "accommodation/home.html", {"rooms": rooms})
 
@@ -169,16 +170,13 @@ def delete_booking(request, booking_id):
     This does NOT change room.available, so homepage status stays as-is.
     If the booking does not exist, just redirect back to My bookings.
     """
-    # Use .filter() so we don't raise 404 if it doesn't exist
     booking_qs = Booking.objects.filter(id=booking_id)
 
     if request.method == "POST":
         if booking_qs.exists():
             booking_qs.delete()
-        # Whether it existed or not, go back to the list
         return redirect("my_bookings")
 
-    # For GET (if you use a confirmation page)
     booking = booking_qs.first()
     if not booking:
         return redirect("my_bookings")
@@ -187,4 +185,64 @@ def delete_booking(request, booking_id):
         request,
         "accommodation/delete_booking_confirm.html",
         {"booking": booking},
+    )
+
+
+# ------------- MEDIA ADMIN (custom, separate from Django admin) ------------- #
+
+def _is_media_admin(user):
+    """
+    Only allow staff users (e.g. your 'manager' account) to manage images.
+    Normal users cannot access these URLs.
+    """
+    return user.is_staff
+
+
+@login_required
+@user_passes_test(_is_media_admin)
+def manager_room_list(request):
+    """
+    Simple dashboard: list all rooms so a media admin can manage images.
+    """
+    rooms = Room.objects.all().order_by("id")
+    return render(
+        request,
+        "accommodation/manager_room_list.html",
+        {"rooms": rooms},
+    )
+
+
+@login_required
+@user_passes_test(_is_media_admin)
+def manage_room_image(request, room_id):
+    """
+    Upload or delete an image for a specific room.
+
+    Saving/deleting room.image uses your existing S3 storage backend,
+    so no new IAM roles are needed.
+    """
+    room = get_object_or_404(Room, id=room_id)
+
+    if request.method == "POST":
+        # If the 'Delete image' button was pressed:
+        if "delete_image" in request.POST:
+            if room.image:
+                # delete from S3 and clear the field, but don't delete the room
+                room.image.delete(save=False)
+                room.image = None
+                room.save()
+            return redirect("manager_room_list")
+
+        # Otherwise it's an upload/update
+        form = RoomImageForm(request.POST, request.FILES, instance=room)
+        if form.is_valid():
+            form.save()  # uploads to S3 via your configured storage
+            return redirect("manager_room_list")
+    else:
+        form = RoomImageForm(instance=room)
+
+    return render(
+        request,
+        "accommodation/manager_room_image.html",
+        {"room": room, "form": form},
     )

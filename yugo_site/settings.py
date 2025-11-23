@@ -15,7 +15,8 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://*.vfs.cloud9.us-east-1.amazonaws.com',
+    "https://73aa1f217fb94446bc8d29ff32c3ba21.vfs.cloud9.us-east-1.amazonaws.com:8080",
+    "https://73aa1f217fb94446bc8d29ff32c3ba21.vfs.cloud9.us-east-1.amazonaws.com"
 ]
 
 # -----------------------------------------------------------------------------

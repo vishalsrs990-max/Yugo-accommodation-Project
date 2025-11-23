@@ -1,0 +1,129 @@
+{% extends 'accommodation/base.html' %}
+
+{% block content %}
+<style>
+    .mgr-wrapper {
+        min-height: calc(100vh - 80px);
+        padding: 32px 16px 40px 16px;
+        background: radial-gradient(circle at top left, #eef2ff, #e0f2fe, #f9fafb);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .mgr-inner {
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .mgr-title {
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: #111827;
+    }
+
+    .mgr-subtitle {
+        font-size: 13px;
+        color: #6b7280;
+        margin-bottom: 20px;
+    }
+
+    .mgr-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #ffffff;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+        overflow: hidden;
+    }
+
+    .mgr-table th,
+    .mgr-table td {
+        padding: 10px 14px;
+        font-size: 13px;
+        border-bottom: 1px solid #e5e7eb;
+        text-align: left;
+    }
+
+    .mgr-table th {
+        background: #f3f4ff;
+        font-weight: 600;
+    }
+
+    .mgr-badge {
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 999px;
+        font-size: 11px;
+        background: #e5e7eb;
+        color: #111827;
+    }
+
+    .mgr-link {
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: none;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        color: #ffffff;
+    }
+
+    .mgr-link:hover {
+        filter: brightness(1.05);
+    }
+
+    .mgr-thumb {
+        width: 70px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+</style>
+
+<div class="mgr-wrapper">
+    <div class="mgr-inner">
+        <div class="mgr-title">Media manager</div>
+        <div class="mgr-subtitle">
+            Upload or delete images for rooms. Only media admin users can see this page.
+        </div>
+
+        <table class="mgr-table">
+            <thead>
+            <tr>
+                <th>Room</th>
+                <th>Location</th>
+                <th>Current image</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for room in rooms %}
+                <tr>
+                    <td>{{ room.name }}</td>
+                    <td>{{ room.location }}</td>
+                    <td>
+                        {% if room.image %}
+                            <img src="{{ room.image.url }}" alt="{{ room.name }}" class="mgr-thumb">
+                        {% else %}
+                            <span class="mgr-badge">No image</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'manage_room_image' room.id %}" class="mgr-link">
+                            Manage image
+                        </a>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="4">No rooms found.</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
