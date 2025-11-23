@@ -1,27 +1,310 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Yugo Accommodation</title>
-</head>
-<body>
-    <h1>Yugo Accommodation & Lodging</h1>
-    <h2>Available Rooms</h2>
-    <div>
-        {% for room in rooms %}
-            <div style="border:1px solid #ccc; padding:10px; margin-bottom:10px;">
-                <h3>{{ room.name }} ({{ room.get_room_type_display }})</h3>
-                <p>Location: {{ room.location }}</p>
-                <p>Price per night: €{{ room.price_per_night }}</p>
-                {% if room.image %}
-                    <img src="{{ room.image.url }}" alt="{{ room.name }}" width="250">
+{% extends 'accommodation/base.html' %}
+
+{% block content %}
+    <style>
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f5f5f7;
+            color: #111827;
+        }
+
+        .page-wrapper {
+            max-width: 1200px;
+            margin: 20px auto 40px auto;
+            padding: 0 16px 40px 16px;
+        }
+
+        h1.page-title {
+            font-size: 28px;
+            margin-bottom: 16px;
+        }
+
+        /* HERO SECTION (TOP) */
+
+        .hero-card {
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 18px 45px rgba(15, 23, 42, 0.10);
+            overflow: hidden;
+            margin-bottom: 32px;
+        }
+
+        .hero-image-wrapper {
+            position: relative;
+        }
+
+        .hero-image-wrapper img {
+            width: 100%;
+            display: block;
+            object-fit: cover;
+            max-height: 420px;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            left: 24px;
+            top: 24px;
+            background: rgba(17, 24, 39, 0.85);
+            color: #fff;
+            padding: 14px 18px;
+            border-radius: 12px;
+            max-width: 320px;
+        }
+
+        .hero-overlay-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .hero-overlay-subtitle {
+            font-size: 13px;
+            line-height: 1.4;
+            opacity: 0.9;
+        }
+
+        /* AVAILABLE ROOMS SECTION */
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin: 24px 0 12px 0;
+        }
+
+        .section-subtitle {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 16px;
+        }
+
+        .rooms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 18px;
+        }
+
+        .room-card {
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .room-card img {
+            width: 100%;
+            height: 170px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .room-card-body {
+            padding: 12px 14px 14px 14px;
+            font-size: 13px;
+        }
+
+        .room-name {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .room-location {
+            color: #6b7280;
+            font-size: 12px;
+            margin-bottom: 2px;
+        }
+
+        .room-type {
+            color: #6b7280;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .room-price {
+            font-weight: 600;
+            color: #4f46e5;
+            margin-bottom: 2px;
+        }
+
+        .room-status {
+            font-size: 12px;
+            color: #059669;
+            margin-bottom: 10px;
+        }
+
+        .room-actions {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .btn-book {
+            background: #f97386;
+            color: #ffffff;
+            border: none;
+            border-radius: 999px;
+            padding: 5px 14px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .btn-book:hover {
+            background: #fb7185;
+        }
+
+        /* WHAT'S AVAILABLE SECTION */
+
+        .features-section {
+            margin-top: 40px;
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.07);
+            padding: 20px 22px 24px 22px;
+        }
+
+        .features-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 18px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            gap: 14px 60px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .feature-icon {
+            width: 24px;
+            text-align: center;
+            margin-right: 8px;
+            font-size: 18px;
+        }
+
+        @media (max-width: 768px) {
+            .hero-overlay {
+                left: 12px;
+                right: 12px;
+                top: 12px;
+            }
+        }
+    </style>
+
+    <div class="page-wrapper">
+
+        <h1 class="page-title">Yugo Accommodation &amp; Lodging</h1>
+
+        <!-- HERO SECTION (BIG IMAGE ONLY, NO RIGHT-SIDE CARDS) -->
+        <div class="hero-card">
+            <div class="hero-image-wrapper">
+                {% if rooms and rooms.0.image %}
+                    <img src="{{ rooms.0.image.url }}" alt="{{ rooms.0.name }}">
+                {% else %}
+                    <!-- fallback image if no room image -->
+                    <img src="https://images.pexels.com/photos/271639/pexels-photo-271639.jpeg" alt="Yugo Highfield Park">
                 {% endif %}
-                <p>{{ room.description }}</p>
-                <p>Status: {% if room.available %}Available{% else %}Not available{% endif %}</p>
-                <a href="{% url 'book_room' room.id %}">Book now</a>
+
+                <div class="hero-overlay">
+                    <div class="hero-overlay-title">Live at Yugo Highfield Park</div>
+                    <div class="hero-overlay-subtitle">
+                        Modern student accommodation with premium rooms, studios and shared spaces in Dublin.
+                    </div>
+                </div>
             </div>
-        {% empty %}
-            <p>No rooms available at the moment.</p>
-        {% endfor %}
+        </div>
+
+        <!-- AVAILABLE ROOMS CARDS -->
+        <div class="section-title">Available Rooms</div>
+        <div class="section-subtitle">
+            Choose a room type and complete your booking.
+        </div>
+
+        <div class="rooms-grid">
+            {% for room in rooms %}
+                <div class="room-card">
+                    {% if room.image %}
+                        <img src="{{ room.image.url }}" alt="{{ room.name }}">
+                    {% else %}
+                        <img src="https://images.pexels.com/photos/271639/pexels-photo-271639.jpeg" alt="{{ room.name }}">
+                    {% endif %}
+
+                    <div class="room-card-body">
+                        <div class="room-name">{{ room.name }}</div>
+                        <div class="room-location">{{ room.location }}</div>
+                        <div class="room-type">
+                            {{ room.get_room_type_display }} ·
+                            {% if room.available %}Available{% else %}Not available{% endif %}
+                        </div>
+                        <div class="room-price">€{{ room.price_per_night }} / night</div>
+                        <div class="room-status">
+                            {% if room.available %}Status: Available{% else %}Status: Not available{% endif %}
+                        </div>
+                        <div class="room-actions">
+                            <form method="get" action="{% url 'book_room' room.id %}">
+                                <button class="btn-book" type="submit">Book now</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            {% empty %}
+                <p>No rooms available at the moment.</p>
+            {% endfor %}
+        </div>
+
+        <!-- WHAT'S AVAILABLE SECTION (BOTTOM) -->
+        <div class="features-section">
+            <div class="features-title">What's available</div>
+
+            <div class="features-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">📚</div>
+                    <div>Study rooms</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🎮</div>
+                    <div>Games room</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🎱</div>
+                    <div>Pool table</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">💪</div>
+                    <div>Gym</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">📺</div>
+                    <div>TV lounge</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🎬</div>
+                    <div>Cinema room</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🍽️</div>
+                    <div>Dining room</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🍳</div>
+                    <div>Communal kitchen</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🌿</div>
+                    <div>Courtyard</div>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">🌳</div>
+                    <div>Garden</div>
+                </div>
+            </div>
+        </div>
+
     </div>
-</body>
-</html>
+{% endblock %}

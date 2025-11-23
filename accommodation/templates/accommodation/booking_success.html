@@ -1,25 +1,134 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Booking Successful</title>
-</head>
-<body>
-    <h1>Booking Successful 🎉</h1>
+{% extends 'accommodation/base.html' %}
 
-    <p>Thank you for your booking!</p>
+{% block content %}
+<style>
+    .success-wrapper {
+        min-height: calc(100vh - 80px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px 16px 40px 16px;
+        background: radial-gradient(circle at top left, #ecfeff, #eef2ff, #f9fafb);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
 
-    <h2>Booking Details</h2>
-    <ul>
-        <li><strong>Room:</strong> {{ booking.room.name }} ({{ booking.room.get_room_type_display }})</li>
-        <li><strong>Location:</strong> {{ booking.room.location }}</li>
-        <li><strong>User Email:</strong> {{ booking.user_email }}</li>
-        <li><strong>Check-in:</strong> {{ booking.check_in }}</li>
-        <li><strong>Check-out:</strong> {{ booking.check_out }}</li>
-        <li><strong>Total Price:</strong> €{{ booking.total_price }}</li>
-        <li><strong>Status:</strong> {{ booking.get_status_display }}</li>
-        <li><strong>Created at:</strong> {{ booking.created_at }}</li>
-    </ul>
+    .success-card {
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 20px 45px rgba(15, 23, 42, 0.18);
+        max-width: 620px;
+        width: 100%;
+        padding: 24px 26px 26px 26px;
+    }
 
-    <p><a href="/">Back to rooms list</a></p>
-</body>
-</html>
+    .success-title {
+        font-size: 26px;
+        font-weight: 700;
+        margin-bottom: 4px;
+        color: #111827;
+    }
+
+    .success-subtitle {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 18px;
+    }
+
+    .success-details-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        margin-top: 4px;
+        color: #111827;
+    }
+
+    .success-details {
+        font-size: 14px;
+        color: #374151;
+        margin-bottom: 18px;
+    }
+
+    .success-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 8px;
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-danger {
+        padding: 8px 14px;
+        border-radius: 999px;
+        border: none;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        color: #ffffff;
+    }
+
+    .btn-secondary {
+        background: #e5e7eb;
+        color: #111827;
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #f97373, #ef4444);
+        color: #ffffff;
+    }
+
+    .btn-primary:hover,
+    .btn-secondary:hover,
+    .btn-danger:hover {
+        filter: brightness(1.05);
+    }
+</style>
+
+<div class="success-wrapper">
+    <div class="success-card">
+        <div class="success-title">
+            Booking Successful 🎉
+        </div>
+        <div class="success-subtitle">
+            Thank you for your booking!
+        </div>
+
+        <div class="success-details-title">Booking details</div>
+        <div class="success-details">
+            <ul>
+                <li><strong>Room:</strong> {{ booking.room.name }} ({{ booking.room.get_room_type_display }})</li>
+                <li><strong>Location:</strong> {{ booking.room.location }}</li>
+                <li><strong>User Email:</strong> {{ booking.user_email }}</li>
+                <li><strong>Check-in:</strong> {{ booking.check_in }}</li>
+                <li><strong>Check-out:</strong> {{ booking.check_out }}</li>
+                <li><strong>Total Price:</strong> €{{ booking.total_price }}</li>
+                <li><strong>Status:</strong> {{ booking.status|title }}</li>
+                <li><strong>Created at:</strong> {{ booking.created_at }}</li>
+            </ul>
+        </div>
+
+        <div class="success-actions">
+            <a href="{% url 'home' %}" class="btn-secondary">
+                Back to rooms list
+            </a>
+
+            <a href="{% url 'edit_booking' booking.id %}" class="btn-primary">
+                Update booking
+            </a>
+
+            <form method="post" action="{% url 'cancel_booking' booking.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn-danger">
+                    Cancel booking
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

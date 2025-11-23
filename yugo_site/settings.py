@@ -31,6 +31,9 @@ INSTALLED_APPS = [
 
     # Your app
     'accommodation.apps.AccommodationConfig',
+
+    # Needed for S3Boto3Storage
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -106,36 +109,59 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Optional extra static dir (either create the folder or remove this)
+# Optional extra static dir (create BASE_DIR / 'static' or remove this)
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
 # -----------------------------------------------------------------------------
-# MEDIA (LOCAL UPLOADS)
+# DEFAULT MEDIA (overridden by S3 block when USE_S3=True)
 # -----------------------------------------------------------------------------
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # -----------------------------------------------------------------------------
 # S3 SETTINGS FOR YOUR YUGO PROJECT
-# (used by accommodation/signals.py and your s3_utils)
 # -----------------------------------------------------------------------------
 
-# Your actual bucket name from the screenshot:
-# yugo-accommodation-buckets (region us-east-1)
+# Your actual bucket name + region
 YUGO_S3_BUCKET_NAME = "yugo-accommodation-buckets"
-
-# Region of the bucket
 YUGO_AWS_REGION = "us-east-1"
 
-# Base URL for public objects (used to build s3_url)
+# Base URL for public objects (still useful for some helpers)
 YUGO_S3_BASE_URL = (
     f"https://{YUGO_S3_BUCKET_NAME}.s3.{YUGO_AWS_REGION}.amazonaws.com"
 )
 
-# If some code still uses this name it will also work:
+# Name used by django-storages
 AWS_STORAGE_BUCKET_NAME = YUGO_S3_BUCKET_NAME
+
+# Use S3 for media files
+USE_S3 = True  # you can switch to False for local dev if needed
+
+if USE_S3:
+    AWS_S3_REGION_NAME = YUGO_AWS_REGION
+    AWS_S3_CUSTOM_DOMAIN = (
+        f'{AWS_STORAGE_BUCKET_NAME}.s3.{AWS_S3_REGION_NAME}.amazonaws.com'
+    )
+    AWS_S3_OBJECT_PARAMETERS = {
+        'CacheControl': 'max-age=86400',
+    }
+
+    # All FileField/ImageField will go to S3
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+    # Media URL points to S3
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
+else:
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# -----------------------------------------------------------------------------
+# LAMBDA + SNS BOOKING EMAIL
+# -----------------------------------------------------------------------------
+BOOKING_LAMBDA_NAME = 'yugo-booking'
+AWS_REGION_NAME = 'us-east-1'
 
 # -----------------------------------------------------------------------------
 # DEFAULT AUTO FIELD
@@ -143,27 +169,6 @@ AWS_STORAGE_BUCKET_NAME = YUGO_S3_BUCKET_NAME
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-
-# Media (Room images) via S3 using django-storages
-USE_S3 = True  # you can switch to False for local dev if needed
-
-if USE_S3:
-    AWS_STORAGE_BUCKET_NAME = 'yugo-accommodation-buckets'
-    AWS_S3_REGION_NAME = 'us-east-1'
-    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-    AWS_S3_OBJECT_PARAMETERS = {
-        'CacheControl': 'max-age=86400',
-    }
-
-    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/media/'
-else:
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-# 🔹 Lambda + SNS booking email
-BOOKING_LAMBDA_NAME = 'yugo-booking'   # <-- your function name from screenshot
-AWS_REGION_NAME = 'us-east-1'
+LOGIN_URL = 'login'                # where @login_required sends anonymous users
+LOGIN_REDIRECT_URL = 'home'        # after successful login
+LOGOUT_REDIRECT_URL = 'login'       # after logout
