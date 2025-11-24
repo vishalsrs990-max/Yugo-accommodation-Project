@@ -1,5 +1,6 @@
 from decimal import Decimal
 from datetime import datetime
+import json
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse
@@ -9,7 +10,16 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth.decorators import login_required, user_passes_test
 
 from .models import Room, Booking
-from .forms import RoomImageForm
+from .forms import RoomImageForm, SupportTicketForm
+
+# SQS demo classes from your zip
+from producer import Producer
+from consumer import Consumer
+
+
+# ---------------------------------------------------------------------
+# PUBLIC VIEWS (HOME + BOOKING + SIGNUP)
+# ---------------------------------------------------------------------
 
 
 def home(request):
@@ -79,6 +89,11 @@ def signup(request):
         form = UserCreationForm()
 
     return render(request, "accommodation/signup.html", {"form": form})
+
+
+# ---------------------------------------------------------------------
+# BOOKING MANAGEMENT (USER CRUD)
+# ---------------------------------------------------------------------
 
 
 @login_required
@@ -188,11 +203,51 @@ def delete_booking(request, booking_id):
     )
 
 
+# ---------------------------------------------------------------------
+# SQS SUPPORT TICKETS (STUDENT PRODUCER + MANAGER CONSUMER)
+# ---------------------------------------------------------------------
+
+
+@csrf_exempt  # avoid CSRF/origin issues on Cloud9 for now
+def support_ticket(request):
+    """
+    Student view: raise a maintenance/support ticket.
+    Uses the tutorial Producer class to send a JSON message to SQS queue
+    'yugo-support-queue'.
+    """
+    if request.method == "POST":
+        form = SupportTicketForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            data["created_at"] = datetime.utcnow().isoformat()
+
+            # Turn dict into JSON string and send to queue yugo-support-queue
+            message = json.dumps(data)
+            p = Producer()
+            p.send_message("yugo-support-queue", message)
+
+            return render(
+                request,
+                "accommodation/support_ticket_success.html",
+                {"ticket": data},
+            )
+    else:
+        form = SupportTicketForm()
+
+    return render(
+        request,
+        "accommodation/support_ticket_form.html",
+        {"form": form},
+    )
+
+
 # ------------- MEDIA ADMIN (custom, separate from Django admin) ------------- #
+
 
 def _is_media_admin(user):
     """
-    Only allow staff users (e.g. your 'manager' account) to manage images.
+    Only allow staff users (e.g. your 'manager' account) to manage images
+    and support tickets.
     Normal users cannot access these URLs.
     """
     return user.is_staff
@@ -245,4 +300,31 @@ def manage_room_image(request, room_id):
         request,
         "accommodation/manager_room_image.html",
         {"room": room, "form": form},
+    )
+
+
+@login_required
+@user_passes_test(_is_media_admin)
+@csrf_exempt
+def manager_next_ticket(request):
+    
+    result_message = None
+
+    if request.method == "POST":
+        c = Consumer()
+        # This will:
+        # - get queue URL for 'yugo-support-queue'
+        # - receive one message
+        # - print it in the terminal
+        # - delete it from the queue
+        c.consume_message("yugo-support-queue")
+        result_message = (
+            "Next support ticket has been consumed and removed from the SQS queue. "
+            "Check the Cloud9 terminal logs for full ticket details (printed by Consumer)."
+        )
+
+    return render(
+        request,
+        "accommodation/manager_next_ticket.html",
+        {"result_message": result_message},
     )

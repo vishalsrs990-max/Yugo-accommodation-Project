@@ -1,0 +1,152 @@
+{% extends 'accommodation/base.html' %}
+
+{% block content %}
+<style>
+    .support-wrapper {
+        min-height: calc(100vh - 80px);  /* leave space for header */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 32px 16px 40px 16px;
+        background: radial-gradient(circle at top left, #eef2ff, #e0f2fe, #f9fafb);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .support-card {
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 20px 45px rgba(15, 23, 42, 0.16);
+        padding: 26px 30px 30px 30px;
+        max-width: 520px;
+        width: 100%;
+    }
+
+    .support-title {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: #111827;
+    }
+
+    .support-subtitle {
+        font-size: 13px;
+        color: #6b7280;
+        margin-bottom: 18px;
+    }
+
+    .support-form label {
+        display: block;
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 4px;
+        color: #374151;
+    }
+
+    .support-form input,
+    .support-form textarea {
+        width: 100%;
+        padding: 9px 11px;
+        border-radius: 10px;
+        border: 1px solid #d1d5db;
+        font-size: 13px;
+        margin-bottom: 12px;
+        outline: none;
+        box-sizing: border-box;
+    }
+
+    .support-form textarea {
+        min-height: 130px;
+        resize: vertical;
+    }
+
+    .support-form input:focus,
+    .support-form textarea:focus {
+        border-color: #4f46e5;
+        box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.35);
+    }
+
+    .support-button {
+        margin-top: 4px;
+        width: 100%;
+        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        color: #ffffff;
+        border: none;
+        border-radius: 999px;
+        padding: 9px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        letter-spacing: 0.02em;
+    }
+
+    .support-button:hover {
+        filter: brightness(1.05);
+    }
+
+    .support-footer {
+        margin-top: 14px;
+        font-size: 12px;
+        color: #6b7280;
+        text-align: center;
+    }
+
+    .support-footer a {
+        color: #4f46e5;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .support-footer a:hover {
+        text-decoration: underline;
+    }
+
+    .form-errors {
+        color: #b91c1c;
+        font-size: 12px;
+        margin-bottom: 10px;
+    }
+</style>
+
+<div class="support-wrapper">
+    <div class="support-card">
+        <div class="support-title">Yugo Accommodation - Support</div>
+        <div class="support-subtitle">
+            Describe your maintenance or support issue and our team will get back to you.
+        </div>
+
+        {% if form.errors %}
+            <div class="form-errors">
+                Please fix the errors below and try again.
+            </div>
+        {% endif %}
+
+        <form method="post" class="support-form">
+            {% csrf_token %}
+
+            <label for="{{ form.name.id_for_label }}">Your name</label>
+            {{ form.name }}
+
+            <label for="{{ form.email.id_for_label }}">Email</label>
+            {{ form.email }}
+
+            <label for="{{ form.room.id_for_label }}">Room number/type</label>
+            {{ form.room }}
+            <small style="font-size:11px;color:#9ca3af;">e.g. Twin Classic 12A</small>
+
+            <label for="{{ form.subject.id_for_label }}" style="margin-top:8px;">Subject</label>
+            {{ form.subject }}
+
+            <label for="{{ form.message.id_for_label }}">Describe your issue</label>
+            {{ form.message }}
+
+            <button type="submit" class="support-button">
+                Submit ticket
+            </button>
+        </form>
+
+        <div class="support-footer">
+            <a href="{% url 'home' %}">Back to homepage</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

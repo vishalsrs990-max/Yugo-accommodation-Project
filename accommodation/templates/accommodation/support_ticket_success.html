@@ -1,0 +1,24 @@
+{% extends 'accommodation/base.html' %}
+
+{% block content %}
+  <h1>Support ticket submitted</h1>
+
+  <p>
+      Thank you, {{ ticket.name }}.
+      Your request has been sent to Yugo Accommodation support.
+  </p>
+
+  <ul>
+      <li><strong>Email:</strong> {{ ticket.email }}</li>
+      <li><strong>Room:</strong> {{ ticket.room }}</li>
+      <li><strong>Subject:</strong> {{ ticket.subject }}</li>
+  </ul>
+
+  <p>
+      Tickets are handled on a first-come, first-served basis via Amazon SQS.
+  </p>
+
+  <p>
+      <a href="{% url 'home' %}">Back to homepage</a>
+  </p>
+{% endblock %}

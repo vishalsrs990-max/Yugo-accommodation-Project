@@ -1,0 +1,21 @@
+{% extends 'accommodation/base.html' %}
+
+{% block content %}
+  <h1>Manager - Next Support Ticket</h1>
+
+  <p>
+    <a href="{% url 'manager_room_list' %}">Back to Rooms</a> |
+    <a href="{% url 'logout' %}">Logout</a>
+  </p>
+
+  <form method="post">
+      {% csrf_token %}
+      <button type="submit">Get next ticket from SQS</button>
+  </form>
+
+  {% if result_message %}
+      <p style="margin-top: 16px; color: green;">
+          {{ result_message }}
+      </p>
+  {% endif %}
+{% endblock %}
