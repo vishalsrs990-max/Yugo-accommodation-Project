@@ -1,5 +1,3 @@
-# src/yugo_booking_lib/booking_price.py
-
 from datetime import datetime
 
 

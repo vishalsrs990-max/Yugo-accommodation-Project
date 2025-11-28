@@ -16,6 +16,9 @@ from .forms import RoomImageForm, SupportTicketForm
 from producer import Producer
 from consumer import Consumer
 
+# Your reusable pricing library
+from yugo_booking_lib.booking_price import BookingPrice
+
 
 # ---------------------------------------------------------------------
 # PUBLIC VIEWS (HOME + BOOKING + SIGNUP)
@@ -38,17 +41,27 @@ def book_room(request, room_id):
         check_in = request.POST.get("check_in")
         check_out = request.POST.get("check_out")
 
-        # Simple price calc based on nights
-        days = 1
-        try:
-            d1 = datetime.fromisoformat(check_in).date()
-            d2 = datetime.fromisoformat(check_out).date()
-            days = max((d2 - d1).days, 1)
-        except Exception:
-            # if parsing fails, fall back to 1 night
-            pass
+        # -------------------------------
+        # Use BookingPrice library here
+        # -------------------------------
+        bp = BookingPrice()
 
-        total_price = Decimal(days) * room.price_per_night
+        try:
+            nights = bp.calculate_nights(check_in, check_out)  # returns 0 if invalid/order wrong
+            if nights <= 0:
+                nights = 1  # keep same behaviour as before: minimum 1 night
+        except Exception:
+            nights = 1  # if parsing fails, fall back to 1 night
+
+        total_float = bp.calculate_total_price(
+            nights=nights,
+            nightly_rate=float(room.price_per_night),
+            tax_rate=0.08,   # set VAT here later if you want
+            fixed_fee=50.0,
+        )
+
+        # Store as Decimal in the DB
+        total_price = Decimal(str(total_float))
 
         booking = Booking.objects.create(
             room=room,
@@ -74,7 +87,27 @@ def book_room(request, room_id):
 
 def booking_success(request, booking_id):
     booking = get_object_or_404(Booking, id=booking_id)
-    return render(request, "accommodation/booking_success.html", {"booking": booking})
+
+    # Use your library to compute nights from check-in / check-out
+    bp = BookingPrice()
+    nights = 0
+    try:
+        nights = bp.calculate_nights(
+            str(booking.check_in),   # e.g. "2025-11-28"
+            str(booking.check_out),  # e.g. "2025-12-05"
+        )
+    except Exception:
+        # if anything goes wrong, keep nights = 0
+        pass
+
+    return render(
+        request,
+        "accommodation/booking_success.html",
+        {
+            "booking": booking,
+            "nights": nights,   # 👈 this is what your template prints
+        },
+    )
 
 
 def signup(request):
@@ -106,16 +139,25 @@ def edit_booking(request, booking_id):
         check_in = request.POST.get("check_in")
         check_out = request.POST.get("check_out")
 
-        # Reuse same days/price logic as book_room
-        days = 1
-        try:
-            d1 = datetime.fromisoformat(check_in).date()
-            d2 = datetime.fromisoformat(check_out).date()
-            days = max((d2 - d1).days, 1)
-        except Exception:
-            pass
+        # -------------------------------
+        # Use BookingPrice library again
+        # -------------------------------
+        bp = BookingPrice()
 
-        total_price = Decimal(days) * room.price_per_night
+        try:
+            nights = bp.calculate_nights(check_in, check_out)
+            if nights <= 0:
+                nights = 1
+        except Exception:
+            nights = 1
+
+        total_float = bp.calculate_total_price(
+            nights=nights,
+            nightly_rate=float(room.price_per_night),
+            tax_rate=0.0,
+            fixed_fee=0.0,
+        )
+        total_price = Decimal(str(total_float))
 
         booking.check_in = check_in
         booking.check_out = check_out
@@ -307,7 +349,10 @@ def manage_room_image(request, room_id):
 @user_passes_test(_is_media_admin)
 @csrf_exempt
 def manager_next_ticket(request):
-    
+    """
+    Manager-only view: fetch and delete the next support ticket
+    message from the SQS queue using the Consumer class.
+    """
     result_message = None
 
     if request.method == "POST":
