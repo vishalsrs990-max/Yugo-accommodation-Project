@@ -84,7 +84,6 @@
                     <a href="{% url 'manager_room_list' %}" class="nav-link">Media manager</a>
                 {% endif %}
 
-                <!-- NEW: support link visible to logged-in users -->
                 <a href="{% url 'support_ticket' %}" class="nav-link">Support</a>
 
                 <a href="{% url 'my_bookings' %}" class="nav-link">My bookings</a>
@@ -93,7 +92,6 @@
                 </div>
                 <a href="{% url 'logout' %}" class="nav-link">Logout</a>
             {% else %}
-                <!-- NEW: support link visible to guests too -->
                 <a href="{% url 'support_ticket' %}" class="nav-link">Support</a>
 
                 <a href="{% url 'login' %}" class="nav-link">Login</a>

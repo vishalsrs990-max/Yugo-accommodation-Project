@@ -171,7 +171,6 @@
                             </form>
                         {% endif %}
 
-                        <!-- Delete option (only removes from My bookings, not homepage) -->
                         <form method="post"
                               action="{% url 'delete_booking' booking.id %}">
                             {% csrf_token %}

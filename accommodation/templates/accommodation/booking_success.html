@@ -107,10 +107,7 @@
                 <li><strong>User Email:</strong> {{ booking.user_email }}</li>
                 <li><strong>Check-in:</strong> {{ booking.check_in }}</li>
                 <li><strong>Check-out:</strong> {{ booking.check_out }}</li>
-
-                {# ✅ only new line: show how many nights were charged #}
                 <li><strong>Nights:</strong> {{ nights }}</li>
-
                 <li><strong>Total Price:</strong> €{{ booking.total_price }}</li>
                 <li><strong>Status:</strong> {{ booking.status|title }}</li>
                 <li><strong>Created at:</strong> {{ booking.created_at }}</li>

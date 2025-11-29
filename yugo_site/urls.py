@@ -7,7 +7,7 @@ from accommodation import views as acc_views
 urlpatterns = [
     path("admin/", admin.site.urls),
 
-    # authentication
+    
     path(
         "accounts/login/",
         auth_views.LoginView.as_view(template_name="accommodation/login.html"),
@@ -19,7 +19,7 @@ urlpatterns = [
         name="logout",
     ),
 
-    # public pages
+    
     path("", acc_views.home, name="home"),
     path("signup/", acc_views.signup, name="signup"),
     path("rooms/<int:room_id>/book/", acc_views.book_room, name="book_room"),
@@ -29,7 +29,7 @@ urlpatterns = [
         name="booking_success",
     ),
 
-    # booking management
+    
     path(
         "booking/<int:booking_id>/edit/",
         acc_views.edit_booking,
@@ -47,10 +47,10 @@ urlpatterns = [
         name="delete_booking",
     ),
 
-    # SQS: student support ticket
+    
     path("support/", acc_views.support_ticket, name="support_ticket"),
 
-    # manager / media admin
+    
     path("manager/rooms/", acc_views.manager_room_list, name="manager_room_list"),
     path(
         "manager/rooms/<int:room_id>/image/",
@@ -58,7 +58,7 @@ urlpatterns = [
         name="manage_room_image",
     ),
 
-    # manager: SQS next ticket
+    
     path(
         "manager/support/next/",
         acc_views.manager_next_ticket,

@@ -15,11 +15,10 @@ class Producer:
     def send_message(self, queue_name, message):
         
         try:
-            # Create a session and use it to make our client
+            
             session = boto3.session.Session()
             sqs_client = session.client('sqs')
-            # sqs_client = boto3.client('sqs')
-            # retrive the URL of an existing Amazon SQS queue
+            
             response = sqs_client.get_queue_url(QueueName=queue_name)
             queue_url = response['QueueUrl']
             

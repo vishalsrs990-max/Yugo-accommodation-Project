@@ -5,10 +5,8 @@ from decimal import Decimal
 
 
 class DynamoDBDemo:
-
     def create_table(self, table_name, key_schema, attribute_definitions,
                      provisioned_throughput, region):
-
         try:
             dynamodb_resource = boto3.resource("dynamodb", region_name=region)
             print("\ncreating the table {} ...".format(table_name))
@@ -18,12 +16,9 @@ class DynamoDBDemo:
                 AttributeDefinitions=attribute_definitions,
                 ProvisionedThroughput=provisioned_throughput
             )
-
-            # Wait until the table exists.
             self.table.meta.client.get_waiter('table_exists').wait(
                 TableName=table_name
             )
-
         except ClientError as e:
             logging.error(e)
             return False
@@ -36,7 +31,6 @@ class DynamoDBDemo:
             dynamodb_resource = boto3.resource("dynamodb", region_name=region)
             table = dynamodb_resource.Table(table_name)
             table.put_item(Item=item)
-
         except ClientError as e:
             logging.error(e)
             return False
@@ -51,7 +45,6 @@ class DynamoDBDemo:
             response = table.get_item(Key=key)
             item = response['Item']
             print(item)
-
         except ClientError as e:
             logging.error(e)
             return False
@@ -59,14 +52,8 @@ class DynamoDBDemo:
 
 
 def save_room_to_dynamodb(room):
-    """
-    Helper used by Django signals:
-    takes a Room model instance and stores it in DynamoDB YugoRooms table,
-    using the same style as DynamoDBDemo.store_an_item().
-    """
-
-    region = 'us-east-1'          # Learner Lab region
-    table_name = 'YugoRooms'      # your DynamoDB table name
+    region = 'us-east-1'
+    table_name = 'YugoRooms'
 
     d = DynamoDBDemo()
 
@@ -86,11 +73,7 @@ def save_room_to_dynamodb(room):
     d.store_an_item(region, table_name, item)
 
 
-# OPTIONAL: if you still want a standalone demo like your original code,
-# you can keep or adapt this main(). It will NOT run when imported by Django.
-
 def main():
-    """Simple test when running this file directly, not needed for Django."""
     region = 'us-east-1'
     table_name = 'YugoRooms'
 
@@ -115,11 +98,6 @@ def main():
         "WriteCapacityUnits": 1
     }
 
-    # Uncomment this if you want to create the table from code
-    # d.create_table(table_name, key_schema, attribute_definitions,
-    #                provisioned_throughput, region)
-
-    # Example test item
     test_item = {
         "room_id": "test-1",
         "name": "Test Room",

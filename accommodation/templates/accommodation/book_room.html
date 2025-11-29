@@ -142,7 +142,6 @@
 
 <div class="booking-wrapper">
     <div class="booking-card">
-        <!-- LEFT: room info -->
         <div class="booking-room-info">
             {% if room.image %}
                 <div class="booking-room-image">
@@ -161,13 +160,11 @@
             </div>
         </div>
 
-        <!-- RIGHT: booking form -->
         <div>
             <div class="booking-form-title">Booking details</div>
             <form method="post" class="booking-form">
                 {% csrf_token %}
 
-                <!-- these names must match what your view reads -->
                 <label for="id_email">Email</label>
                 <input type="email" id="id_email" name="email" required>
 

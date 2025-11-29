@@ -20,8 +20,6 @@
             margin-bottom: 16px;
         }
 
-        /* HERO SECTION (TOP) */
-
         .hero-card {
             background: #ffffff;
             border-radius: 18px;
@@ -63,8 +61,6 @@
             line-height: 1.4;
             opacity: 0.9;
         }
-
-        /* AVAILABLE ROOMS SECTION */
 
         .section-title {
             font-size: 20px;
@@ -153,8 +149,6 @@
             background: #fb7185;
         }
 
-        /* WHAT'S AVAILABLE SECTION */
-
         .features-section {
             margin-top: 40px;
             background: #ffffff;
@@ -201,13 +195,11 @@
 
         <h1 class="page-title">Yugo Accommodation &amp; Lodging</h1>
 
-        <!-- HERO SECTION (BIG IMAGE ONLY, NO RIGHT-SIDE CARDS) -->
         <div class="hero-card">
             <div class="hero-image-wrapper">
                 {% if rooms and rooms.0.image %}
                     <img src="{{ rooms.0.image.url }}" alt="{{ rooms.0.name }}">
                 {% else %}
-                    <!-- fallback image if no room image -->
                     <img src="https://images.pexels.com/photos/271639/pexels-photo-271639.jpeg" alt="Yugo Highfield Park">
                 {% endif %}
 
@@ -220,7 +212,6 @@
             </div>
         </div>
 
-        <!-- AVAILABLE ROOMS CARDS -->
         <div class="section-title">Available Rooms</div>
         <div class="section-subtitle">
             Choose a room type and complete your booking.
@@ -258,7 +249,6 @@
             {% endfor %}
         </div>
 
-        <!-- WHAT'S AVAILABLE SECTION (BOTTOM) -->
         <div class="features-section">
             <div class="features-title">What's available</div>
 

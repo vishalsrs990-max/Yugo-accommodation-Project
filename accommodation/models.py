@@ -15,30 +15,19 @@ class Room(models.Model):
     room_type = models.CharField(max_length=50, choices=ROOM_TYPES)
     price_per_night = models.DecimalField(max_digits=8, decimal_places=2)
     description = models.TextField(blank=True, null=True)
-
-    # stored in S3 (via django-storages)
     image = models.ImageField(upload_to="rooms/", blank=True, null=True)
-
-    # optional: filled by signals with S3 URL
     s3_url = models.URLField(max_length=500, blank=True, null=True)
-
     available = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return f"{self.name} ({self.get_room_type_display()})"
 
-    # 🔹 Generate a temporary signed URL so the browser can see a private S3 object
     @property
     def signed_image_url(self):
-        """
-        Return a pre-signed URL for this room's image in S3.
-        Works even when the bucket is private in AWS Academy.
-        """
         if not self.image:
             return ""
 
-        # Use same region & bucket as in settings.py
         bucket_name = settings.AWS_STORAGE_BUCKET_NAME
         region_name = getattr(settings, "AWS_S3_REGION_NAME", "us-east-1")
 
@@ -48,9 +37,9 @@ class Room(models.Model):
             "get_object",
             Params={
                 "Bucket": bucket_name,
-                "Key": self.image.name,  # S3 object key
+                "Key": self.image.name,
             },
-            ExpiresIn=3600,  # URL valid for 1 hour
+            ExpiresIn=3600,
         )
 
 
@@ -67,7 +56,6 @@ class Booking(models.Model):
         related_name="bookings",
     )
     user_email = models.EmailField()
-    # You’re storing these as strings from the view
     check_in = models.CharField(max_length=50)
     check_out = models.CharField(max_length=50)
     total_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -79,4 +67,4 @@ class Booking(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Booking #{self.id} for {self.room.name} ({self.user_email})"
+        return f"Booking #{self.id} for {self.room.name} ({self.user_email})",

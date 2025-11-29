@@ -10,11 +10,7 @@ class BookingPrice:
     """
 
     def calculate_nights(self, check_in_str: str, check_out_str: str, fmt: str = "%Y-%m-%d") -> int:
-        """
-        Given two date strings, return number of nights.
-        Example: "2026-01-08" to "2026-01-15" => 7 nights
-        If check_out <= check_in, returns 0.
-        """
+        
         check_in = datetime.strptime(check_in_str, fmt).date()
         check_out = datetime.strptime(check_out_str, fmt).date()
         diff = (check_out - check_in).days
@@ -38,7 +34,7 @@ class BookingPrice:
 
 
 if __name__ == "__main__":
-    # Small test, same idea as __main__ block in tutorial
+    
     bp = BookingPrice()
     nights = bp.calculate_nights("2026-01-08", "2026-01-15")
     total = bp.calculate_total_price(nights, nightly_rate=60.0, tax_rate=0.13, fixed_fee=50.0)
